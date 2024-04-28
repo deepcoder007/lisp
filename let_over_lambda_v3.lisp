@@ -116,6 +116,8 @@
 
 (defun single-quote-reader (stream char)
   (declare (ignore char))
-  (list (quote quote) (read stream t nil t)))
+  (print "BEGIN reading")
+  (list (quote quote) (read stream t nil t))
+  (print "END reading"))
 
 (set-macro-character #\* #'single-quote-reader)
