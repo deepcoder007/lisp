@@ -139,3 +139,28 @@
 ;;;;;;;;;;;;;;;;;
 ;;;;  some more lambda programming
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(defmacro alet% (letargs &rest body)
+  `(let ((this) ,@letargs)
+     (setq this ,@(last body))
+     ,@(butlast body)
+     this))
+
+
+(alet% ((sum) (mul) (expt))
+       (funcall this)
+       (lambda () (print "another level of function"))
+       (lambda () (print "hello world")))
+
+
+(alet% ((sum) (mul) (expt))
+       (funcall this)
+       (lambda () (print "another level of function"))
+       (lambda () (print "another level of function"))
+       (lambda () (print "another level of function"))
+       (lambda () (print "another level of function"))
+       (lambda () (print "another level of function"))
+       (lambda () (print "another level of function"))
+       (lambda () (print "another level of function"))
+       (lambda () (print "hello world")))
