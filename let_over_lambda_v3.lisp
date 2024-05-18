@@ -118,9 +118,24 @@
   (declare (ignore char))
   (print "BEGIN reading")
   (list (quote quote) (read stream t nil t))
+  (print stream)
   (print "END reading"))
 
 (set-macro-character #\* #'single-quote-reader)
 
 
 (eval-when (:execute) (print "hello World"))
+
+(print "hello world")
+
+(second `(1 2 3 4 5))
+
+(mapcar (lambda (a) '(,a 'empty)) '(var-a var-b var-c))
+
+(mapcar (lambda (a) `(,a 'empty)) '(var-a var-b var-c))
+
+(mapcar #`(,a1 'empty) '(var-a var-b var-c))
+
+;;;;;;;;;;;;;;;;;
+;;;;  some more lambda programming
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
