@@ -153,6 +153,12 @@
        (lambda () (print "another level of function"))
        (lambda () (print "hello world")))
 
+(alet% ((sum) (mul) (expt))
+       (funcall this)
+       (lambda () (print "another level of function"))
+       (lambda () (print "hello world")))
+
+
 
 (alet% ((sum) (mul) (expt))
        (funcall this)

@@ -9,6 +9,7 @@
 
 (add 2 30)
 
+(+ 2 3)
 ;;;  book example
 
 (defun a+expand (args syms)
