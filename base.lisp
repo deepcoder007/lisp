@@ -431,3 +431,6 @@
 
 
 (print "BIG Line break ======================")
+(print
+ (macroexpand-1
+  '(print_code (> 123 34) (print "message"))))
