@@ -30,8 +30,40 @@
 
 (my-and-v3 (print 1) (print 2) (print 3) (print 4))
 
+;;
+;; testing on different argument lengths and opertions over those
+;;
+(defmacro arg-length-m (&rest exprs)
+  (length exprs))
+
+(arg-length-m (print 1) (print 2) (print 3) (print 4))
+
+(defmacro arg-length-m2 (&rest exprs)
+  `(length (quote ,exprs)))
+
+(arg-length-m2 (print 1) (print 2) (print 3) (print 4))
+
+
+(defmacro arg-length-m3 (&rest exprs)
+  `(mapcar 'eval (quote ,exprs)))
+
+(arg-length-m3 (print 1) (print 2) (print 3) (print 4))
+
+(defmacro arg-length-m4 (&rest exprs)
+  `(mapcar 'eval (cdr (quote ,exprs))))
+
+(arg-length-m4 (print 1) (print 2) (print 3) (print 4))
+
+;;
+;; testing of recursive macros
+;;
 (defmacro my-and-recursive-v1 (&rest exprs)
-  `(print (cddr (quote ,exprs)))
-  )
+  (if (> (length exprs) 0)
+    `(progn (print "before eval")
+          (eval (car (quote ,exprs)))
+          (mapcar #'eval (cdr (quote ,exprs)))
+          '(my-and-recursive-v1 `(cdr (quote ,exprs)))
+          (print "after eval")
+    )))
 
 (my-and-recursive-v1 (print 1) (print 2) (print 3) (print 4))
