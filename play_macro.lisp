@@ -58,12 +58,21 @@
 ;; testing of recursive macros
 ;;
 (defmacro my-and-recursive-v1 (&rest exprs)
-  (if (> (length exprs) 0)
+  (if (> (length exprs) 1)
     `(progn (print "before eval")
           (eval (car (quote ,exprs)))
+          (print "---- print rest")
           (mapcar #'eval (cdr (quote ,exprs)))
+          (print " ----- recursive call begin")
+          (my-and-recursive-v1 (cdr ,exprs))
+          (print " ----- recursive call end")
           '(my-and-recursive-v1 `(cdr (quote ,exprs)))
           (print "after eval")
-    )))
+    )
+    (progn (print "too small input")
+           (print `(quote ,exprs)))
+    ))
 
 (my-and-recursive-v1 (print 1) (print 2) (print 3) (print 4))
+
+(my-and-recursive-v1 (print "hello") (print "hello2"))
