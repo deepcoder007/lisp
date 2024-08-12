@@ -818,16 +818,6 @@
 (append (append nil '(print 10)) '(print 20))
 
 
-;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;
-
-
-(defun divide (x y)
-  (assert (not (zerop y))
-          (y) "Y cannot be zero, please change")
-  (/ x y))
-
-(divide 9 0)
 
 
 (print "BIG Line break ======================")

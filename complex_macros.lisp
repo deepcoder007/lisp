@@ -36,33 +36,6 @@
                           (append syms (list sym)))))
       `(list ,@syms)))
 
-;; macro++
-
-(defmacro defanaph (name &optional calls)
-  (let ((calls (or calls (pop-symbol name))))
-    `(defmacro ,name (&rest args)
-       (anaphex args (list `,calls)))))
-
-(defun anaphex (args expr)
-  (if args
-      (let ((sym (gensym)))
-        `(let* ((,sym ,(car args))
-                (it ,sym))
-           ,(anaphex (cdr args)
-                     (append expr (list sym)))))
-      expr))
-
-(defun pop-symbol (sym)
-  (intern (subseq (symbol-name sym) 1)))
-
-(defanaph a+)
-(defanaph alist)
-
-(pop-symbol :a+)
-
-(pop-symbol :alist)
-
-;;;;;;;;;;;;;;;;
 
 (defun mass-cost (menu-price)
   (a+ menu-price (* it .05) (* it 3)))
@@ -187,71 +160,3 @@
 (eval-first (print 111) (print 2) (print 3))
 
 (eval-first (print 111) (print 2) (print 3) (print 4))
-
-(defmacro eval-sample (&rest args)
-  (if (> (length args) 0)
-      (progn (print "BEGIN element")
-             (print (length args))
-             `(mapcar #'append
-               (quote ,(cdr (cdr args))))
-             )
-      (print "done")))
-
-(defmacro eval-sample (&rest args)
-  (if (> (length args) 0)
-      (progn (print "BEGIN element")
-             (print (length args))
-             `(mapcar #'append
-               (quote ,(cdr (cdr args))))
-             )
-      (print "done")))
-
-
-(defmacro eval-sample (&rest args)
-  (if (> (length args) 0)
-      (progn (print "BEGIN element")
-             `(mapcar #'append
-               (quote ,(cdr (cdr args))))
-             )
-      (print "done")))
-
-
-
-(eval-sample (print 111) (print 2) (print 3) (print 4) (print 5) (print 6))
-
-(eval-sample)
-
-
-(defun process_val (args)
-  (progn
-    (print "begin process_val")
-    (print args)
-    (print "end process_val")))
-
-
-(process_val (print 10))
-
-;;;;;;;;;;;;;;; recursive macros ;;;;;;;;;;;;;;;;;;;;;
-
-(defun reverse-seq-fn (level &rest args)
-  (if (> (print (length (car `(,@args)))) 0)
-      (progn (print (quote (car ,args)))
-             `(reverse-seq-fn (+ ,level 1) (cdr ,@args)))
-      ))
-
-(defmacro reverse-seq-macro (level &rest args)
-  (if (> (length (car `(,@args))) 0)
-      `(progn
-         (print ,level)
-         (reverse-seq-macro ,(+ level 1) ,@(cdr args))
-         )))
-
-'(defmacro reverse-seq-macro (&rest args)
-  (reverse-seq-fn 0 args))
-
-(reverse-seq-macro 0)
-(reverse-seq-macro 0 (print 1) (print 2))
-(reverse-seq-macro 0 (print 1) (print 2) (print 3))
-
-;;;;;;;;;;;;;;;;;;;;;;
-

@@ -121,3 +121,6 @@
   (print "END reading"))
 
 (set-macro-character #\* #'single-quote-reader)
+
+
+(eval-when (:execute) (print "hello World"))
