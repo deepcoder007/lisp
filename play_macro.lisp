@@ -15,8 +15,15 @@
             ,(first exprs)
             (my-and-v2 ,@(rest exprs))))))
 
+(defmacro my-and-v3 (&rest exprs)
+  `(print (first (quote ,exprs)))
+  )
+
+(my-and-v3 (print 1) (print 2) (print 3) (print 4))
+
+;;   Saved args
 (my-and (print 1) (print 2) (print 3) (print 4))
 
-(print 1)
+(my-and-v2 (print 1) (print 2) (print 3) (print 4))
 
-(if (print 1) (print 10) (print 20))
+(my-and-v3 (print 1) (print 2) (print 3) (print 4))
