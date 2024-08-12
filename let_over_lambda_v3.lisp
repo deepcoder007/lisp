@@ -113,3 +113,9 @@
        (lambda () (print "hello world")))
 
 (eval-when (:compile-toplevel) (print "hello world"))
+
+(defun single-quote-reader (stream char)
+  (declare (ignore char))
+  (list (quote quote) (read stream t nil t)))
+
+(set-macro-character #\* #'single-quote-reader)
