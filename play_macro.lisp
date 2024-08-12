@@ -16,8 +16,10 @@
             (my-and-v2 ,@(rest exprs))))))
 
 (defmacro my-and-v3 (&rest exprs)
-  `(print (first (quote ,exprs)))
+  `(print (cddr (quote ,exprs)))
   )
+
+(my-and-v3 (print 1) (print 2) (print 3) (print 4))
 
 (my-and-v3 (print 1) (print 2) (print 3) (print 4))
 
@@ -27,3 +29,9 @@
 (my-and-v2 (print 1) (print 2) (print 3) (print 4))
 
 (my-and-v3 (print 1) (print 2) (print 3) (print 4))
+
+(defmacro my-and-recursive-v1 (&rest exprs)
+  `(print (cddr (quote ,exprs)))
+  )
+
+(my-and-recursive-v1 (print 1) (print 2) (print 3) (print 4))
