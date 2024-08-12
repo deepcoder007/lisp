@@ -111,3 +111,5 @@
        (lambda () (print "another level of function"))
        (lambda () (print "another level of function"))
        (lambda () (print "hello world")))
+
+(eval-when (:compile-toplevel) (print "hello world"))
