@@ -321,11 +321,12 @@
           (print "END")))
 
 (defmacro custom_loop_5 (body)
-  (progn (print "BEGIN")
+  `(progn (print "BEGIN")
          (loop for x from 1 to 5
                do (progn (print x)))
          (print "END")))
 
+`(custom_loop_5 (print 10))
 
 (custom_loop_n 5 (print 1))
 
