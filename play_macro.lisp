@@ -75,3 +75,20 @@
 (my-and-recursive-v1 0 (print 1) (print 2) (print 3) (print 4))
 
 (my-and-recursive-v1 (print "hello") (print "hello2"))
+
+;;;
+;;; Counter macro
+;;;
+(defmacro gen-number-seq (begin end)
+  (if (< begin end)
+      `(progn
+         (print ,begin)
+         (gen-number-seq ,(+ begin 1) ,end)
+         )
+      ))
+
+(gen-number-seq 10 20)
+
+(gen-number-seq 21 20)
+
+(macroexpand-1 '(gen-number-seq 10 20))
