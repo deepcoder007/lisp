@@ -62,7 +62,7 @@
     `(progn (print "before eval")
           (eval (car (quote ,exprs)))
           (format t "---- print rest ~d\n" ,level)
-          (mapcar #'eval (cdr (quote ,exprs)))
+          (mapcar #'eval (quote ,(cdr exprs)))
           (format t " ----- recursive call begin ~d\n" ,level)
           (my-and-recursive-v1 ,(+ level 1) ,@(cdr exprs))
           (format t " ----- recursive call end ~d\n" ,level)
