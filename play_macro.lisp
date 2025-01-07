@@ -54,6 +54,11 @@
 
 (arg-length-m4 (print 1) (print 2) (print 3) (print 4))
 
+(defmacro arg-entry (&rest exprs)
+  `(cdr (quote ,exprs)))
+
+(arg-entry (print 1) (print 2) (print 3) (print 4))
+
 ;;
 ;; testing of recursive macros
 ;;
@@ -92,3 +97,25 @@
 (gen-number-seq 21 20)
 
 (macroexpand-1 '(gen-number-seq 10 20))
+
+
+(defmacro cond-macro (begin end)
+  (if (< begin end)
+    (progn
+        (print `(,begin ,end))
+        `(cond-macro ,(+ begin 1) ,end)
+        )))
+
+(cond-macro 10 20)
+
+(defmacro expand-range (begin end)
+  (if (< begin end)
+    (progn
+        (print `(,begin ,end))
+        `(expand-range ,(+ begin 1) ,end)
+        `(cons ,begin (expand-range ,(+ begin 1) ,end))
+        )
+    ()))
+
+
+(expand-range 10 15)
