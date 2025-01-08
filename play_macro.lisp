@@ -119,3 +119,59 @@
 
 
 (expand-range 10 15)
+
+
+(defmacro slow-expand-range (begin end)
+  (if (< begin end)
+    `(cons ,begin (slow-expand-range ,(+ begin 1) ,end))
+    '()))
+
+(slow-expand-range 17 20)
+
+;; dlambda
+(defmacro alambda (parms &body body)
+  `(labels ((self ,parms ,@body))
+     #'self))
+
+(defmacro aif (test then &optional else)
+  `(let ((it, test))
+     (if it ,then ,else)))
+
+(defmacro alet% (letargs &rest body)
+  `(let ((this) ,@letargs)
+     (setq this ,@(last body))
+     ,@(butlast body)
+     this))
+
+
+(alambda (n)
+         (if (> n 0)
+             (cons
+              n
+              (self (- n 1)))))
+
+
+(alet% ((sum) (mul) (expt))
+       (print 1)
+       (print this)
+       (print 3)
+       (print 4)
+       )
+
+(defmacro alet (letargs &rest body)
+  `(let ((this) ,@letargs)
+     (setq (this ,@(last body))
+     ,@(butlast body)
+     (lambda (&rest params)
+       (apply this params))))
+  )
+
+(alet ((acc 0))
+      (alambda (n)
+        (if (eq n 'invert)
+            (setq this
+                  (lambda (n)
+                    (if (eq n 'invert)
+                        (setq this #'self)
+                        (decf acc n))))
+            (incf acc n))))
