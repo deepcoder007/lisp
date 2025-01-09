@@ -188,7 +188,7 @@
                     (state going-down)
                     (incf acc n)))
          (going-down (n)
-                (if (eq n 'inert)
+                (if (eq n 'invert)
                     (state going-up)
                     (decf acc n)))))
 
@@ -199,6 +199,6 @@
                     (state going-down)
                     (incf acc n)))
          (going-down (n)
-                (if (eq n 'inert)
+                (if (eq n 'invert)
                     (state going-up)
                     (decf acc n)))))
