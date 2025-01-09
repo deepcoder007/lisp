@@ -160,11 +160,10 @@
 
 (defmacro alet (letargs &rest body)
   `(let ((this) ,@letargs)
-     (setq (this ,@(last body))
+     (setq this ,@(last body))
      ,@(butlast body)
      (lambda (&rest params)
        (apply this params))))
-  )
 
 (alet ((acc 0))
       (alambda (n)
@@ -175,3 +174,31 @@
                         (setq this #'self)
                         (decf acc n))))
             (incf acc n))))
+
+
+(defmacro alet-fsm (&rest states)
+  `(macrolet ((state (s)
+                `(setq this #',s)))
+     (labels (,@states) #',(caar states))))
+
+(alet ((acc 0))
+      (alet-fsm
+         (going-up (n)
+                (if (eq n 'invert)
+                    (state going-down)
+                    (incf acc n)))
+         (going-down (n)
+                (if (eq n 'inert)
+                    (state going-up)
+                    (decf acc n)))))
+
+(alet ((acc 0))
+      (alet-fsm
+         (going-up (n)
+                (if (eq n 'invert)
+                    (state going-down)
+                    (incf acc n)))
+         (going-down (n)
+                (if (eq n 'inert)
+                    (state going-up)
+                    (decf acc n)))))
