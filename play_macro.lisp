@@ -202,3 +202,35 @@
                 (if (eq n 'invert)
                     (state going-up)
                     (decf acc n)))))
+
+(defun flatten (x)
+  (labels ((rec (x acc)
+                (cond ((null x) acc)
+                      ((typep x 'sb-impl::comma) (rec (sb-impl::comma-expr x) acc))
+                      ((atom x) (cons x acc))
+                      (t (rec
+                            (car x)
+                            (rec (cdr x) acc))))))
+    (rec x nil)))
+
+(flatten '(1 (2 3) 4))
+
+(flatten '(1 (2 3 (4 5 6)) 4))
+
+(defmacro defmacro/g! (name args &rest body)
+  (let ((syms (remove-duplicates
+               (remove-if-not #'g!-symbol-p
+                              (flatten body)))))
+    (multiple-value-bind (body declarations docstring)
+        (parse-body body :documentation t)
+      `(defmacro ,name ,args
+         ,@(when docstring
+             (list docstring))
+         ,@declarations
+         (let ,(mapcar
+                (lambda (s)
+                  `(,s (gensym ,(subseq
+                                 (symbol-name s)
+                                 2))))
+                syms)
+           ,@body)))))
