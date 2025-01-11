@@ -362,12 +362,32 @@
 (dlambda
   (:hotpatch (closure)
               (setq 'test-sym closure))
+  (:coldpathc (closure)
+              (setq 'second-test-sym closure))
   (t (&rest args)
       (apply 'test-sym args)))
-
 
 (dlambda
 (:hotpatch (closure)
             (setq ,g!this closure))
 (t (&rest args)
     (apply ,g!this args)))
+
+;; decipher dlambda
+(defmacro! debug_dlambda (&rest ds)
+  (mapcar (lambda (d)
+            `(print ,(cdr d)))
+          ds))
+
+(debug_dlambda
+  (:hotpatch (closure)
+              (setq 'test-sym closure))
+  (t (&rest args)
+      (apply 'test-sym args)))
+
+
+(debug_dlambda
+  (:hotpatch (closure)
+              (setq 'test-sym closure))
+  (t (&rest args)
+      (apply 'test-sym args)))
