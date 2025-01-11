@@ -294,8 +294,80 @@
 (defmacro! square (o!x)
   `(* ,g!x ,g!x))
 
+(defmacro! osquare (o!x)
+  `(* ,o!x ,o!x))
+
 (square 5)
 
 (square (progn
           (print 10)
           5))
+
+(defun let-binding-transform (bs)
+  (if bs
+    (cons
+      (cond ((symbolp (car bs))
+              (list (car bs)))
+            ((consp (car bs))
+              (car bs))
+            (t
+              (error "Bad let bindings")))
+      (let-binding-transform (cdr bs)))))
+
+
+; alet-hotpatch
+(defmacro alet-hotpatch% (letargs &rest body)
+  `(let ((this) ,@letargs)
+     (setq this ,@(last body))
+     ,@(butlast body)
+     (lambda (&rest args)
+       (if (eq (car args) ':hotpatch)
+           (setq this (cadr args))
+           (apply this args)))))
+
+(setf (symbol-function 'hotpatch-test)
+      (alet-hotpatch% ((acc 0))
+                      (lambda (n)
+                        (incf acc n))))
+
+(alet-hotpatch% ((acc 0))
+                (lambda (n)
+                  (incf acc n)))
+
+(defmacro! dlambda (&rest ds)
+  `(lambda (&rest ,g!args)
+     (case (car ,g!args)
+       ,@(mapcar
+           (lambda (d)
+             `(,(if (eq t (car d))
+                  t
+                  (list (car d)))
+               (apply (lambda ,@(cdr d))
+                      ,(if (eq t (car d))
+                         g!args
+                         `(cdr ,g!args)))))
+           ds))))
+
+(defmacro! let-hotpatch (letargs &rest body)
+  `(let ((,g!this) ,@letargs)
+     (setq ,g!this ,@(last body))
+     ,@(butlast body)
+     (dlambda
+      (:hotpatch (closure)
+                 (setq ,g!this closure))
+      (t (&rest args)
+         (apply ,g!this args)))))
+
+
+(dlambda
+  (:hotpatch (closure)
+              (setq 'test-sym closure))
+  (t (&rest args)
+      (apply 'test-sym args)))
+
+
+(dlambda
+(:hotpatch (closure)
+            (setq ,g!this closure))
+(t (&rest args)
+    (apply ,g!this args)))
