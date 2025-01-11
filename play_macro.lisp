@@ -217,20 +217,85 @@
 
 (flatten '(1 (2 3 (4 5 6)) 4))
 
+  (defun g!-symbol-p (s)
+    (and (symbolp s)
+         (> (length (symbol-name s)) 2)
+         (string= (symbol-name s)
+                  "G!"
+                  :start1 0
+                  :end1 2)))
+
 (defmacro defmacro/g! (name args &rest body)
   (let ((syms (remove-duplicates
                (remove-if-not #'g!-symbol-p
                               (flatten body)))))
-    (multiple-value-bind (body declarations docstring)
-        (parse-body body :documentation t)
       `(defmacro ,name ,args
-         ,@(when docstring
-             (list docstring))
-         ,@declarations
          (let ,(mapcar
                 (lambda (s)
                   `(,s (gensym ,(subseq
                                  (symbol-name s)
                                  2))))
                 syms)
-           ,@body)))))
+           ,@body))))
+
+
+(defmacro/g! test_macro (v)
+  `(progn
+     (print ,v)
+     (setf ,g!v 101)
+     (print ,g!v)
+     (setf ,g!result 1010)
+     (print ,g!result)
+     ))
+
+(test_macro 10)
+
+;; gensym done in inner invocation of defmacro/g!
+(defmacro/g! junk-outer ()
+  `(defmacro/g! junk-inner ()
+     `(let ((,g!abc))
+        ,g!abc)))
+
+;; gensym done in outer invocation of defmacro/g!
+(defmacro/g! junk-outer ()
+  `(defmacro/g! junk-inner ()
+     `(let ((,,g!abc))
+        ,,g!abc)))
+
+(junk-outer)
+
+(defun o!-symbol-p (s)
+  (and (symbolp s)
+        (> (length (symbol-name s)) 2)
+        (string= (symbol-name s)
+                "O!"
+                :start1 0
+                :end1 2)))
+
+(defun mkstr (&rest args)
+  (with-output-to-string (s)
+    (dolist (a args) (princ a s))))
+
+(defun symb (&rest args)
+  (values (intern (apply #'mkstr args))))
+
+(defun o!-symbol-to-g!-symbol (s)
+  (symb "G!"
+        (subseq (symbol-name s) 2)))
+
+(defmacro defmacro! (name args &rest body)
+  (let* ((os (remove-if-not #'o!-symbol-p (flatten args)))
+         (gs (mapcar #'o!-symbol-to-g!-symbol os)))
+      `(defmacro/g! ,name ,args
+         `(let ,(mapcar #'list (list ,@gs) (list ,@os))
+            ,(progn ,@body)))))
+
+
+(defmacro! square (o!x)
+  `(* ,g!x ,g!x))
+
+(square 5)
+
+(square (progn
+          (print 10)
+          5))
