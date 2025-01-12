@@ -314,6 +314,8 @@
               (error "Bad let bindings")))
       (let-binding-transform (cdr bs)))))
 
+(let-binding-transform '(1 2 3))
+
 
 ; alet-hotpatch
 (defmacro alet-hotpatch% (letargs &rest body)
@@ -391,3 +393,59 @@
               (setq 'test-sym closure))
   (t (&rest args)
       (apply 'test-sym args)))
+
+;; pandoric macros
+  (defun mkstr (&rest args)
+    (with-output-to-string (s)
+      (dolist (a args) (princ a s))))
+
+  (defun symb (&rest args)
+    (values (intern (apply #'mkstr args))))
+
+(defun |#`-reader| (stream sub-char numarg)
+    (declare (ignore sub-char))
+    (unless numarg (setq numarg 1))
+    `(lambda ,(loop for i from 1 to numarg
+                    collect (symb 'a i))
+        ,(funcall
+            (get-macro-character #\`) stream nil)))
+
+(set-dispatch-macro-character #\# #\` #'|#`-reader|)
+
+
+(defmacro pandoriclet (letargs &rest body)
+  (let ((letargs (cons
+                   '(this)
+                   (let-binding-transform
+                     letargs))))
+    `(let (,@letargs)
+       (setq this ,@(last body))
+       ,@(butlast body)
+       (dlambda
+         (:pandoric-get (sym)
+           ,(pandoriclet-get letargs))
+         (:pandoric-set (sym val)
+           ,(pandoriclet-set letargs))
+         (t (&rest args)
+           (apply this args))))))
+
+(defun pandoriclet-get (letargs)
+  `(case sym
+     ,@(mapcar #`((,(car a1)) ,(car a1))
+               letargs)
+     (t (error
+          "Unknown pandoric get: ~a"
+          sym))))
+
+(defun pandoriclet-set (letargs)
+  `(case sym
+     ,@(mapcar #`((,(car a1))
+                   (setq ,(car a1) val))
+               letargs)
+     (t (error
+          "Unknown pandoric set: ~a"
+          sym))))
+
+(setf (symbol-function 'pantest)
+      (pandoriclet ((acc 0))
+                   (lambda (n) (incf acc n))))
