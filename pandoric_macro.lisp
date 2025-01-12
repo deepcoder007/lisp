@@ -184,3 +184,16 @@
 (setf (symbol-function 'pantest)
       (pandoriclet ((acc 0))
                    (lambda (n) (incf acc n))))
+
+
+(pandoriclet ((acc 0))
+            (lambda (n) (incf acc n)))
+
+(defmacro! with-pandoric (syms o!box &rest body)
+  `(symbol-macrolet
+       (,@(mapcar #`(,a1 (get-pandoric ,g!box `,a1))
+                  syms))
+     ,@body))
+
+(with-pandoric (acc) #'pantest
+  (format t "value of acc: ~a ~%" acc))
