@@ -66,3 +66,31 @@
                         (t 0)))
 
 (sample_fn 110 0)
+
+(defun g!-symbol-p (s)
+    (and (symbolp s)
+            (> (length (symbol-name s)) 2)
+            (string= (symbol-name s)
+                    "G!"
+                    :start1 0
+                    :end1 2)))
+
+(g!-symbol-p 'G!value-symbol)
+
+(g!-symbol-p 'value-wo-symbol)
+
+(defmacro defmacro/g! (name args &rest body)
+  (let ((syms (remove-duplicates
+              (remove-if-not #'g!-symbol-p
+                             (flatten body)))))
+    `(print ,syms)
+  )
+)
+
+(defmacro/g! sample_fn (x y)
+                     (progn
+                         (+ x y G!-test)
+                         (+ x y G!-test-2)
+                         (+ x y G!-test)
+                         (+ x y G!-test-3)
+                     ))
