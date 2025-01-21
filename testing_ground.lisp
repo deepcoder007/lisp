@@ -83,9 +83,12 @@
   (let ((syms (remove-duplicates
               (remove-if-not #'g!-symbol-p
                              (flatten body)))))
-    `(print ,syms)
-  )
-)
+    `(defmacro ,name ,args
+       (let ,(mapcar
+              (lambda (s)
+                `(,s (gensym ,(subseq (symbol-name s) 2))))
+              syms)
+         ,@body))))
 
 (defmacro/g! sample_fn (x y)
                      (progn
@@ -94,3 +97,29 @@
                          (+ x y G!-test)
                          (+ x y G!-test-3)
                      ))
+
+(defun o!-symbol-p (s)
+  (and (symbolp s)
+        (> (length (symbol-name s)) 2)
+        (string= (symbol-name s)
+                "O!"
+                :start1 0
+                :end1 2)))
+
+(defun mkstr (&rest args)
+  (with-output-to-string (s)
+    (dolist (a args) (princ a s))))
+
+(defun symb (&rest args)
+  (values (intern (apply #'mkstr args))))
+
+(defun o!-symbol-to-g!-symbol (s)
+  (symb "G!"
+        (subseq (symbol-name s) 2)))
+
+(defmacro defmacro! (name args &rest body)
+  (let* ((os (remove-if-not #'o!-symbol-p (flatten args)))
+         (gs (mapcar #'o!-symbol-to-g!-symbol os)))
+      `(defmacro/g! ,name ,args
+         `(let ,(mapcar #'list (list ,@gs) (list ,@os))
+            ,(progn ,@body)))))
