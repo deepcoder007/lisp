@@ -117,9 +117,51 @@
   (symb "G!"
         (subseq (symbol-name s) 2)))
 
-(defmacro defmacro! (name args &rest body)
+'(defmacro defmacro! (name args &rest body)
   (let* ((os (remove-if-not #'o!-symbol-p (flatten args)))
          (gs (mapcar #'o!-symbol-to-g!-symbol os)))
       `(defmacro/g! ,name ,args
          `(let ,(mapcar #'list (list ,@gs) (list ,@os))
             ,(progn ,@body)))))
+
+
+(defmacro! def_fn (x y z)
+  (setq g!sym 10)
+  (+ x y z g!sym))
+
+(defmacro! def_fn (x y z)
+  (+ x y z))
+
+(defun next_fn (x)
+  (* x 2))
+
+(next_fn 120)
+
+(defmacro gen_arg (name args &rest body)
+  `(progn
+    (print (quote ,name))
+    (print (quote ,args))
+    (print (atom  (quote ,args)))
+    (print (atom (quote ,body)))
+    (progn
+        ,@(mapcar (lambda (name)
+                `(print (cdr (quote ,name))))
+                body))))
+
+(gen_arg print_macro (x y z)
+           (print 1)
+           (print 2))
+
+; PRINT_MACRO
+; (X Y Z)
+; NIL
+; NIL
+; (1)
+; (2)  => (2)
+
+; PRINT_MACRO
+; (X Y Z)
+; NIL
+; NIL
+; PRINT
+; PRINT  => PRINT
