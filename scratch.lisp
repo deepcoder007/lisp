@@ -49,18 +49,57 @@
 
 (defmacro this_macro (&rest args)
   (let ((fargs (flatten args)))
-               (print "this is macro")
-              `(+ ,@fargs)))
+               (if (< 3 (length args))
+                   `(+ ,@fargs)
+                   `(print "smaller then 2"))))
 
 (this_macro 1 2 (3 4 5) (6 7 (8 9 10)))
+ ; => 55 (6 bits, #x37, #o67, #b110111)
 
+(this_macro 1 2)
+; "smaller then 2"  => "smaller then 2"
+
+'(defmacro proc_)
 
 (defmacro test_c_macro (name args &rest body)
   (let ((syms (flatten body)))
-    `(print ,syms)))
+     (print "--------- expand test_c_macro ---------")
+     (print syms)
+     (print name)
+     (print (symbol-name name))
+    `(defmacro ,name (&rest arg_list)
+         (progn (print arg_list)
+                (print (length arg_list))
+                '(print (mapcar (lambda (x) (symbol-name x))
+                                (cdr args)))
+                '(mapcar (lambda (x) (print (symbol-name x)))
+                                (cdr args))
+                ,@(mapcar (lambda (x)
+                            `(progn
+                               (print ,(symbol-name x))
+                               (print ',x)))
+                                args)
+                (print "before value")
+                (mapcar (lambda (x)
+                            (progn
+                               (print x)))
+                                arg_list)
+                (print "after value")))
+))
 
+(test_c_macro this_macro (a b c d)
+              (+ (a b)))
 
-(test_c_macro this_macro (a b)
-              (+ a b))
+(this_macro 1 2 3 4 5 6 7 8 9 10)
 
-(this_macro 1 2)
+; (1 2 3 4 5 6 7 8 9 10)
+; 10
+; "A"
+; A
+; "B"
+; B
+; "C"
+; C
+; "D"
+; D
+; "value"  => "value"
