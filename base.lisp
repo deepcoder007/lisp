@@ -1,11 +1,17 @@
 ;; First example of lisp code
 
+
+(defun hello-add (a b)
+  (+ a b))
+
 (defun foo (&key a b c)
   (list a b c))
 
 (defmacro when_macro (condition &rest body)
   `(if ,condition (progn ,@body))
   )
+
+(when_macro (> 1 2) (print "hello world"))
 
 (defmacro print_code (condition &rest body)
   `(progn (print "BEGIN_COND")
@@ -93,6 +99,11 @@
 
 ;; (repeat-body 5 (progn (print 1) (print 2)))
 
+(defmacro repeat-body (n &body body)
+  (loop for x from 1 to n
+        collect `(,@body)))
+
+(print (macroexpand-1 '(repeat-body 3 (print 1))))
 
 (print
  (macroexpand-1
@@ -258,7 +269,7 @@
      (if it ,then-form ,else-form)))
 
 
-(aif (> 15  10) (print it))
+(aif (> 15  10) `(print ,it) (print `(1 ,it)))
 
 
 
@@ -347,6 +358,7 @@
 
 (add 2 3)
 
+`(,'+ 1 2 3)
 
 (defun a+expand (args syms)
   (if args
@@ -359,6 +371,8 @@
 
 (defmacro a+ (&rest args)
   (a+expand args nil))
+
+(a+ 1 2 3 4)
 
 
 (defmacro alist (&rest args)
