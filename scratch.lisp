@@ -10,6 +10,7 @@
 
 
 (flatten '(1 2 3))
+ ; => (1 2 3)
 
 
 
@@ -59,47 +60,80 @@
 (this_macro 1 2)
 ; "smaller then 2"  => "smaller then 2"
 
-'(defmacro proc_)
+'(mapcar (lambda (x)
+            (progn
+                (print ,(symbol-name ,x))
+                (print ,x)))
+                args)
 
-(defmacro test_c_macro (name args &rest body)
-  (let ((syms (flatten body)))
-     (print "--------- expand test_c_macro ---------")
-     (print syms)
-     (print name)
-     (print (symbol-name name))
-    `(defmacro ,name (&rest arg_list)
-         (progn (print arg_list)
-                (print (length arg_list))
-                '(print (mapcar (lambda (x) (symbol-name x))
-                                (cdr args)))
-                '(mapcar (lambda (x) (print (symbol-name x)))
-                                (cdr args))
-                ,@(mapcar (lambda (x)
-                            `(progn
-                               (print ,(symbol-name x))
-                               (print ',x)))
-                                args)
-                (print "before value")
                 (mapcar (lambda (x)
                             (progn
                                (print x)))
                                 arg_list)
-                (print "after value")))
-))
+
+(defmacro test_c_macro (name args &rest body)
+  (let ((syms (flatten body)))
+     (print "expanding outer macro")
+    `(defmacro ,name (&rest arg_list)
+          (print "expanding inner macro")
+          (let ((args ',args))
+              `(progn (print "executing inner macro")
+                      (mapcar (lambda (x) (print x)) (quote ,arg_list))
+                      (mapcar (lambda (x)
+                                  (progn
+                                      '(print (symbol-name x))
+                                      (print x)))
+                                      (mapcar (lambda (y) (symbol-name y)) ',args))
+                      (print "before value")
+                      (print "after value")
+                      )))))
+
 
 (test_c_macro this_macro (a b c d)
               (+ (a b)))
 
 (this_macro 1 2 3 4 5 6 7 8 9 10)
 
-; (1 2 3 4 5 6 7 8 9 10)
-; 10
-; "A"
-; A
-; "B"
-; B
-; "C"
-; C
-; "D"
-; D
-; "value"  => "value"
+(defmacro test_d_macro (name args &rest body)
+  (let ((syms (flatten body))
+        (mapcar (lambda (x) (symbol-name x)) '(s1 s2 s3 s4)))
+     (print "expanding outer macro")
+    `(defmacro ,name (&rest arg_list)
+          (progn
+            (print "expanding inner macro")
+            '(print ,syms)
+            ,body
+          ))))
+
+(defmacro test_d_macro (name args &rest body)
+  (let ((a 1)
+        (b 2)
+        (c 3)
+        (d 4)
+        (e 5))
+    `(defmacro ,name ()
+       (let ,(mapcar (lambda (x) `(,x ,(symbol-name x))) args)
+        `(progn
+              (print ,a)
+              (print ,b)
+              (print ,c)
+              ,,(mapcar (lambda (x) `(print x)) args)
+              ,@,(mapcar (lambda (x) `(print x)) args)
+              ,@(mapcar (lambda (x) `(print x)) args)
+              @,(mapcar (lambda (x) `(print x)) args)
+              ,,@(mapcar (lambda (x) `(print x)) args)
+              ,@(mapcar (lambda (x) `(print x)) args)
+              ,@(mapcar (lambda (x) `(print x)) ,args)
+              ,@(mapcar (lambda (x) `(print ,x)) ,args)
+              (print "expanding outer macro")))
+       )
+    ))
+
+(test_d_macro this_macro (a b c d)
+              (+ (a b))
+              (+ 2 3)
+              (* 5 7))
+
+(this_macro)
+
+(this_macro 1 2 3 4 5 6 7 8 9 10)
