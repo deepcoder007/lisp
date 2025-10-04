@@ -36,6 +36,30 @@ insert x []  =   [x]
 insert x (y:ys)   |   x <= y        = x:y:ys
                   |  otherwise      = y:insert x ys
 
+descList :: [a] -> String
+descList xs =  case xs of
+              []  -> "The list is empty"
+              [x] -> "The list has one element"
+              x:x2:x3 -> "The list has atleast 2 element"
+
+strlen :: IO ()
+strlen = do putStr "Enter a string: "
+            xs <- getLine
+            putStrLn "The input line is "
+            putStrLn xs
+            putStrLn "The input line length is "
+            putStrLn ( show (length xs))
+
+type Pos = (Int, Int)
+goto :: Pos -> IO ()
+goto (x,y) =  putStr("\ESC[" ++ (show y) ++ ";" ++ (show x) ++ "H")
+
+printList :: [Int] -> [IO ()] 
+printList xs = [putStrLn (show x) | x <- xs]
+
+tList :: [Int] -> [String] 
+tList xs = [show (x + 10) | x <- xs]
+
 main :: IO ()
 main = putStrLn "Hello, World"
 
