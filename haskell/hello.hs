@@ -60,6 +60,35 @@ printList xs = [putStrLn (show x) | x <- xs]
 tList :: [Int] -> [String] 
 tList xs = [show (x + 10) | x <- xs]
 
+-- simple custom type example
+data Move = Left | Right | Up | Down
+
+printMove :: Move -> Move
+printMove x = x 
+
+-- Recursive type example
+data Nat = Zero | Succ Nat
+
+depth :: Nat -> Integer
+depth Zero = 0
+depth (Succ x) = 1 + depth x
+
+data CList a = Nil | Cons a (CList a) deriving (Show)
+
+len :: Num a => CList a -> Integer
+len Nil = 0
+len (Cons _ xs) = 1 + len xs
+
+putCList ::Num a => CList a -> IO ()
+putCList Nil = putStrLn "End"
+putCList (Cons x xs) = do 
+                         putStrLn "Element"
+                         putCList xs
+
+flatten :: Num a => CList a -> [a]
+flatten Nil = []
+flatten (Cons x xs) = x:(flatten xs)
+
 main :: IO ()
 main = putStrLn "Hello, World"
 
