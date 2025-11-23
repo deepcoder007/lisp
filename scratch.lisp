@@ -163,3 +163,36 @@
          (:inc () (incf count))
          (:dec () (decf count)))))
 
+
+(defmacro alet% (letargs &rest body)
+  `(let ((this) ,@letargs)
+     (setq this ,@(last body))
+     ,@(butlast body)
+     this))
+
+
+(alet% ((sum) (mul) (expt))
+       (funcall this :reset)
+       (dlambda
+          (:reset ()
+                  (psetq sum 0
+                         mul 1
+                         expt 2))
+          (t (n)
+             (psetq sum (+ sum n)
+                    mul (* mul n)
+                    expt (expt expt n))
+             (list sum mul expt))))
+
+(alet% ((sum) (mul) (expt))
+       (funcall this :reset)
+       (dlambda
+          (:reset ()
+                  (psetq sum 0
+                         mul 1
+                         expt 2))
+          (t (n)
+             (psetq sum (+ sum n)
+                    mul (* mul n)
+                    expt (expt expt n))
+             (list sum mul expt))))
