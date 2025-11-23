@@ -12,7 +12,10 @@
 (flatten '(1 2 3))
  ; => (1 2 3)
 
+(defun hello-fn ()
+   (print "Hello World fn"))
 
+(hello-fn)
 
 (defun g!-symbol-p (s)
   (and (symbolp s)
@@ -132,3 +135,25 @@
 (this_macro)
 
 (this_macro 1 2 3 4 5 6 7 8 9 10)
+
+
+(defmacro dlambda (&rest ds)
+  `(lambda (&rest ,'ARGS)
+     (case (car ,'ARGS)
+       ,@(mapcar
+          (lambda (d)
+            `(, (if (eq t (car d))
+                    t
+                    (list (car d)))
+            (apply (lambda ,@(cdr d))
+                   ,(if (eq t (car d))
+                        'ARGS
+                        `(cdr ,'ARGS)))))
+       ds))))
+
+(setf (symbol-function 'count-test)
+      (let ((count 0))
+        (dlambda
+         (:inc () (incf count))
+         (:dec () (decf count)))))
+
