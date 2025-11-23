@@ -138,8 +138,8 @@
 
 
 (defmacro dlambda (&rest ds)
-  `(lambda (&rest ,'ARGS)
-     (case (car ,'ARGS)
+  `(lambda (&rest ARGS)
+     (case (car ARGS)
        ,@(mapcar
           (lambda (d)
             `(, (if (eq t (car d))
@@ -148,8 +148,14 @@
             (apply (lambda ,@(cdr d))
                    ,(if (eq t (car d))
                         'ARGS
-                        `(cdr ,'ARGS)))))
+                        `(cdr ARGS)))))
        ds))))
+
+;;  example of dlambda  BEGIN
+(dlambda
+  (:inc () (incf count))
+  (:dec () (decf count)))
+;;  example of dlambda  END
 
 (setf (symbol-function 'count-test)
       (let ((count 0))
